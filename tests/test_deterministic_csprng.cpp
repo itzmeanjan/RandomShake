@@ -1,4 +1,5 @@
 #include "randomshake/randomshake.hpp"
+#include "test_utils.hpp"
 #include <algorithm>
 #include <array>
 #include <gtest/gtest.h>
@@ -59,7 +60,7 @@ expect_diff_output_for_deterministic_csprng_using_diff_seed()
 
   std::ranges::generate(rand_bytes_a, rand_gen);
 
-  seed[0] = ~seed[0];
+  randomshake_test_utils::do_bitflip(seed[0], 3);
   std::ranges::generate(rand_bytes_b, rand_gen);
 
   EXPECT_NE(rand_bytes_a, rand_bytes_b);
