@@ -10,17 +10,17 @@ TEST(RandomShakeTestUtility, Bit_Flipping_Must_Work_Correctly)
 
   // 0x00 -> 0xff, by flipping each bit, one at a time
   for (size_t i = 0; i < T_bw; i++) {
-    do_bitflip(input_word, i);
+    randomshake_test_utils::do_bitflip(input_word, i);
   }
 
-  do_bitflip(input_word, T_bw);
+  randomshake_test_utils::do_bitflip(input_word, T_bw);
   EXPECT_EQ(input_word, std::numeric_limits<decltype(input_word)>::max());
 
   // 0xff -> 0x00, by flipping each bit, one at a time
   for (size_t i = 0; i < T_bw; i++) {
-    do_bitflip(input_word, i);
+    randomshake_test_utils::do_bitflip(input_word, i);
   }
 
-  do_bitflip(input_word, T_bw);
+  randomshake_test_utils::do_bitflip(input_word, T_bw);
   EXPECT_EQ(input_word, std::numeric_limits<decltype(input_word)>::min());
 }
