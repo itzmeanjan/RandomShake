@@ -128,17 +128,13 @@ public:
   // Zeroize internal state when destroying an instance of CSPRNG.
   ~randomshake_t()
   {
-    DoNotOptimize(state);
     state.reset();
     DoNotOptimize(state);
 
-    DoNotOptimize(buffer);
     buffer.fill(0);
     DoNotOptimize(buffer);
 
-    DoNotOptimize(buffer_offset);
     buffer_offset = 0;
-    DoNotOptimize(buffer_offset);
   }
 
   // Squeezes random value of type `result_type`.
