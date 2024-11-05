@@ -144,7 +144,7 @@ public:
     const size_t readble_num_bytes = buffer.size() - buffer_offset;
 
     static_assert(
-      buffer.size() % required_num_bytes == 0,
+      RANDOMSHAKE_RATCHET_PERIOD_BYTE_LEN % required_num_bytes == 0,
       "Buffer size nust be a multiple of `required_num_bytes`, for following ratchet->squeeze to work correctly !");
 
     // When the buffer is exhausted, it's time to ratchet and fill the buffer with new ready-to-use random bytes.
