@@ -26,6 +26,7 @@ RANDOMSHAKE_SOURCES := $(shell find $(SRC_DIR) -name '*.hpp')
 BUILD_DIR := build
 
 include tests/test.mk
+include benches/bench.mk
 
 $(SHA3_INC_DIR):
 	git submodule update --init sha3
