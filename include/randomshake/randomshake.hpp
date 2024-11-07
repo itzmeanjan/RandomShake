@@ -96,12 +96,7 @@ public:
       seed_offset += step_by;
     }
 
-    // Using bit-security level as domain separator, so that using same seed doesn't produce same output stream.
-    constexpr uint16_t domain_separator = static_cast<uint16_t>(bit_security_level);
-    auto ds_span = std::span(reinterpret_cast<const uint8_t*>(&domain_separator), sizeof(domain_separator));
-
     state.absorb(seed_span);
-    state.absorb(ds_span);
     state.finalize();
     state.squeeze(buffer);
   }
@@ -109,12 +104,7 @@ public:
   // Expects user to supply us with `seed_byte_len` -bytes seed, which is used for initializing underlying SHAKE256 Xof.
   forceinline explicit constexpr randomshake_t(std::span<const uint8_t, seed_byte_len> seed)
   {
-    // Using bit-security level as domain separator, so that using same seed doesn't produce same output stream.
-    constexpr uint16_t domain_separator = static_cast<uint16_t>(bit_security_level);
-    auto ds_span = std::span(reinterpret_cast<const uint8_t*>(&domain_separator), sizeof(domain_separator));
-
     state.absorb(seed);
-    state.absorb(ds_span);
     state.finalize();
     state.squeeze(buffer);
   }
