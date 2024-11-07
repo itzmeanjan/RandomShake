@@ -40,5 +40,5 @@ clean: ## Remove build directory
 	rm -rf $(BUILD_DIR)
 
 .PHONY: format
-format: $(RANDOMSHAKE_SOURCES) $(TEST_SOURCES) $(TEST_HEADERS) ## Format source code
+format: $(RANDOMSHAKE_SOURCES) $(TEST_SOURCES) $(TEST_HEADERS) $(BENCHMARK_SOURCES) $(BENCHMARK_HEADERS) $(EXAMPLE_SOURCES) $(EXAMPLE_HEADERS) ## Format source code
 	clang-format -i $^
