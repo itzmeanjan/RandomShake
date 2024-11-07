@@ -1,4 +1,5 @@
 #pragma once
+#include "sha3/internals/force_inline.hpp"
 #include "sha3/shake256.hpp"
 #include <array>
 #include <bit>
@@ -128,7 +129,8 @@ public:
   }
 
   // Squeezes random value of type `result_type`.
-  [[nodiscard("Internal state of CSPRNG has changed, you should consume this value")]] result_type operator()()
+  [[nodiscard("Internal state of CSPRNG has changed, you should consume this value")]] forceinline result_type
+  operator()()
   {
     constexpr size_t required_num_bytes = sizeof(result_type);
     const size_t readble_num_bytes = buffer.size() - buffer_offset;
