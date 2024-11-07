@@ -138,7 +138,7 @@ public:
   }
 
   // Squeezes random value of type `result_type`.
-  result_type operator()()
+  [[nodiscard("Internal state of CSPRNG has changed, you should consume this value")]] result_type operator()()
   {
     constexpr size_t required_num_bytes = sizeof(result_type);
     const size_t readble_num_bytes = buffer.size() - buffer_offset;
