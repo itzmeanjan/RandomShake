@@ -43,3 +43,8 @@ jobs:
       run: |
         CXX=${{matrix.compiler}} make ${{matrix.build_type}}_${{matrix.test_type}}_test -j
         make clean
+
+    - name: Build and run examples
+      run: |
+        make example -j
+        make clean
