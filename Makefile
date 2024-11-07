@@ -18,7 +18,8 @@ RELEASE_FLAGS := -O3 -march=native
 LINK_OPT_FLAGS := -flto
 
 I_FLAGS := -I ./include
-DEP_IFLAGS := -I ./sha3/include
+SHA3_INC_DIR := ./sha3/include
+DEP_IFLAGS := -I $(SHA3_INC_DIR)
 
 SRC_DIR := include
 RANDOMSHAKE_SOURCES := $(shell find $(SRC_DIR) -name '*.hpp')
@@ -26,7 +27,10 @@ BUILD_DIR := build
 
 include tests/test.mk
 
-$(GTEST_PARALLEL):
+$(SHA3_INC_DIR):
+	git submodule update --init sha3
+
+$(GTEST_PARALLEL): $(SHA3_INC_DIR)
 	git submodule update --init gtest-parallel
 
 .PHONY: clean
