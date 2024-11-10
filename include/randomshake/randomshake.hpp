@@ -3,6 +3,7 @@
 #include "sha3/shake256.hpp"
 #include <array>
 #include <bit>
+#include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <limits>
@@ -73,6 +74,8 @@ public:
   static constexpr auto max = std::numeric_limits<result_type>::max;
 
   // Samples `seed_byte_len` -many bytes from std::random_device and initializes SHAKE256 Xof - making it ready for use.
+  // Before you use this constructor, I strongly advise you to read
+  // https://en.cppreference.com/w/cpp/numeric/random/random_device.
   forceinline randomshake_t()
   {
     std::array<uint8_t, seed_byte_len> seed{};
@@ -128,7 +131,7 @@ public:
     buffer_offset = 0;
   }
 
-  // Squeezes random value of type `result_type`.
+  // Squeezes a random value of type `result_type`.
   [[nodiscard("Internal state of CSPRNG has changed, you should consume this value")]] forceinline result_type
   operator()()
   {
@@ -155,6 +158,32 @@ public:
     buffer_offset += required_num_bytes;
 
     return result;
+  }
+
+  // Squeezes n(>=0) random bytes, instead of getting one at a time, as done by the above functor.
+  forceinline void generate(std::span<uint8_t> output)
+  {
+    size_t out_offset = 0;
+
+    while (out_offset < output.size()) {
+      const size_t readable_num_bytes = buffer.size() - buffer_offset;
+      const size_t required_num_bytes = output.size() - out_offset;
+      const size_t copyable_num_bytes = std::min(readable_num_bytes, required_num_bytes);
+
+      auto src_ptr = reinterpret_cast<const uint8_t*>(buffer.data()) + buffer_offset;
+      auto dst_ptr = reinterpret_cast<uint8_t*>(output.data()) + out_offset;
+
+      std::memcpy(dst_ptr, src_ptr, copyable_num_bytes);
+
+      buffer_offset += copyable_num_bytes;
+      out_offset += copyable_num_bytes;
+
+      if (buffer_offset == buffer.size()) {
+        state.ratchet(ratchet_byte_len);
+        state.squeeze(buffer);
+        buffer_offset = 0;
+      }
+    }
   }
 };
 
