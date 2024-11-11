@@ -29,6 +29,21 @@ seed.fill(0xde);            // Please don't do it in any practical scenario !
 csprng_256b_t csprng(seed); // Initialized by the seed we supply
 ```
 
+### "RandomShake" CSPRNG Performance Overview
+
+CSPRNG Operation for bit-security level `256` | Time taken on AWS EC2 Instance `c7i.large` | Time taken on AWS EC2 Instance `c8g.large`
+--- | --- | ---
+Deterministic seeding of instance | 2.71us | 2.98us
+Non-Deterministic seeding of instance | 7.39us | 5.14us
+
+CSPRNG Operation for bit-security level `256` | Bandwidth on AWS EC2 Instance `c7i.large` | Bandwidth on  AWS EC2 Instance `c8g.large`
+--- | --- | ---
+Sampling of `u8` | 318.48MB/s | 195.94MB/s
+Sampling of `u16` | 363.12MB/s | 255.14MB/s
+Sampling of `u32` | 371.63MB/s | 304.14MB/s
+Sampling of `u64` | 385.68MB/s | 336.22MB/s
+Sampling arbitrary long byte sequence | 404.15MB/s | 345.12MB/s
+
 ## How to setup ?
 
 - Ensure that you have access to a C++ compiler, which supports compiling C++20 program.
