@@ -110,6 +110,12 @@ Compiled with `g++ (Ubuntu 14.2.0-4ubuntu2) 14.2.0`, while running on `Linux 6.1
 
 I maintain the benchmark results in JSON format @ [bench_result_on_Linux_6.11.0-9-generic_x86_64_with_g++_14](./bench_result_on_Linux_6.11.0-9-generic_x86_64_with_g++_14.json).
 
+### On Raspberry Pi 4B i.e. ARM Cortex-A72
+
+Compiled with `g++ (Debian 12.2.0-14) 12.2.0`, while running on `Linux 6.6.51+rpt-rpi-v8 aarch64`.
+
+Find the benchmark results in JSON format @ [bench_result_on_Linux_6.6.51+rpt-rpi-v8_aarch64_with_g++_12](./bench_result_on_Linux_6.6.51+rpt-rpi-v8_aarch64_with_g++_12.json).
+
 ## How to use ?
 
 Using "RandomShake" CSPRNG is very easy.
