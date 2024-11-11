@@ -104,6 +104,9 @@ make perf -j
 
 I've run benchmarks on some platforms and here are the results.
 
+Benchmarking Results on DESKTOP -grade Machine(s)
+---
+
 ### On 12th Gen Intel(R) Core(TM) i7-1260P
 
 Compiled with `g++ (Ubuntu 14.2.0-4ubuntu2) 14.2.0`, while running on `Linux 6.11.0-9-generic x86_64`.
@@ -115,6 +118,15 @@ I maintain the benchmark results in JSON format @ [bench_result_on_Linux_6.11.0-
 Compiled with `g++ (Debian 12.2.0-14) 12.2.0`, while running on `Linux 6.6.51+rpt-rpi-v8 aarch64`.
 
 Find the benchmark results in JSON format @ [bench_result_on_Linux_6.6.51+rpt-rpi-v8_aarch64_with_g++_12](./bench_result_on_Linux_6.6.51+rpt-rpi-v8_aarch64_with_g++_12.json).
+
+Benchmarking Results on SERVER -grade Machine(s)
+---
+
+### On Intel(R) Xeon(R) Platinum 8488C i.e. AWS EC2 Instance `c7i.large`
+
+Compiled with `g++ (Ubuntu 13.2.0-23ubuntu4) 13.2.0`, while running on `Linux 6.8.0-1016-aws x86_64`.
+
+Find the benchmark results in JSON format @ [bench_result_on_Linux_6.8.0-1016-aws_x86_64_with_g++_13](./bench_result_on_Linux_6.8.0-1016-aws_x86_64_with_g++_13.json).
 
 ### On AWS EC2 Instance `c8g.large` i.e. AWS Graviton4
 
