@@ -29,6 +29,22 @@ seed.fill(0xde);            // Please don't do it in any practical scenario !
 csprng_256b_t csprng(seed); // Initialized by the seed we supply
 ```
 
+Using the CSPRNG instance for sampling random value(s), is super easy.
+
+```cpp
+// Sample a single random uint8_t.
+const auto random_value = csprng();
+
+// or
+// Fill the vector, sampling one byte at a time.
+std::vector<uint8_t> rand_values(16, 0x00);
+std::ranges::generate(rand_values, [&]() { return csprng(); });
+
+// or
+// Fill the vector, by squeezing many bytes at a time.
+csprng.generate(rand_values);
+```
+
 ### "RandomShake" CSPRNG Performance Overview
 
 CSPRNG Operation for bit-security level `256` | Time taken on AWS EC2 Instance `c7i.large` | Time taken on AWS EC2 Instance `c8g.large`
