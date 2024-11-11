@@ -5,7 +5,7 @@ Shake256 Xof -based Portable C++20 Cryptographically Secure Pseudo Random Number
 
 C++11 introduced `<random>` header to its standard library, which offers multiple pseudo-random number generator engines and distributions. The design of the `<random>` header is very much modular, it's possible to plug any psuedo-random number generator engine with any distribution and start getting results as per the rules of the statistical distribution. All that is needed is providing the distribution with a source *u*niform *r*andom *n*umber *g*enerator (URNG). One thing that the standard library's `<random>` header lacks is the psuedo-random number generator engines, which come by default, are not cryptographically secure. Hence using those engines with provided distributions, in cryptographic settings, might be quite catastrophic !
 
-This is where "RandomShake" comes.
+This is where "RandomShake" comes, collecting inspiration from https://seth.rocks/articles/cpprandom.
 
 "RandomShake" is a *C*ryptographically *S*ecure *P*seudo-*R*andom *N*umber *G*enerator (CSPRNG) engine, which is backed by Shake256 extendable output function (Xof) with frequent ratcheting of the underlying keccak-1600 permutation state, generating unsigned integer (of all standard bit-widths) stream for all three NIST security levels. It's very easy to plug this CSPRNG engine into any of the C++ standard library's random distributions. Just plug and play. And now you can use those distributions with "RandomShake" CSPRNG, in cryptographic settings. It also offers API for generating arbitrary many bytes at a time. "RandomShake" offers following two ways for seeding the internal Shake256 state.
 
@@ -115,6 +115,12 @@ I maintain the benchmark results in JSON format @ [bench_result_on_Linux_6.11.0-
 Compiled with `g++ (Debian 12.2.0-14) 12.2.0`, while running on `Linux 6.6.51+rpt-rpi-v8 aarch64`.
 
 Find the benchmark results in JSON format @ [bench_result_on_Linux_6.6.51+rpt-rpi-v8_aarch64_with_g++_12](./bench_result_on_Linux_6.6.51+rpt-rpi-v8_aarch64_with_g++_12.json).
+
+### On AWS EC2 Instance `c8g.large` i.e. AWS Graviton4
+
+Compiled with `g++ (Ubuntu 13.2.0-23ubuntu4) 13.2.0`, while running on `Linux 6.8.0-1016-aws aarch64`.
+
+Find the benchmark results in JSON format @ [bench_result_on_Linux_6.8.0-1016-aws_aarch64_with_g++_13](./bench_result_on_Linux_6.8.0-1016-aws_aarch64_with_g++_13.json).
 
 ## How to use ?
 
