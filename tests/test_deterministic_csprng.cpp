@@ -171,3 +171,58 @@ TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Public_API_For_
 {
   expect_same_output_for_deterministic_csprng_using_different_public_api<256>();
 }
+
+template<size_t bit_security_level>
+static void
+expect_same_output_for_deterministic_csprng_with_oneshot_vs_multishot_squeezing()
+{
+  std::array<uint8_t, randomshake::randomshake_t<bit_security_level>::seed_byte_len> seed{};
+  seed.fill(0xde);
+
+  randomshake::randomshake_t<bit_security_level> csprng_oneshot{ seed };
+  randomshake::randomshake_t<bit_security_level> csprng_multishot{ seed };
+
+  std::vector<uint8_t> generated_bytes_oneshot(GENERATED_RANDOM_BYTE_LEN, 0x00);
+  std::vector<uint8_t> generated_bytes_multishot(GENERATED_RANDOM_BYTE_LEN, 0xff);
+
+  auto generated_bytes_oneshot_span = std::span(generated_bytes_oneshot);
+  auto generated_bytes_multishot_span = std::span(generated_bytes_multishot);
+
+  // Squeeze all random bytes in a single go
+  csprng_oneshot.generate(generated_bytes_oneshot_span);
+
+  // Squeeze random bytes in multiple calls
+  {
+    const size_t out_byte_len = generated_bytes_multishot.size();
+    size_t out_offset = 0;
+
+    while (out_offset < out_byte_len) {
+      csprng_multishot.generate(generated_bytes_multishot_span.subspan(out_offset, 1));
+      out_offset++;
+
+      const auto next_squeeze_byte_len =
+        std::min<size_t>(generated_bytes_multishot_span[out_offset], // Value held by last byte squeezed
+                         out_byte_len - out_offset);                 // How many bytes are yet to be squeezed
+
+      csprng_multishot.generate(generated_bytes_multishot_span.subspan(out_offset, next_squeeze_byte_len));
+      out_offset += next_squeeze_byte_len;
+    }
+  }
+
+  EXPECT_EQ(generated_bytes_oneshot, generated_bytes_multishot);
+}
+
+TEST(RandomShake, Deterministic_CSPRNG_Oneshot_vs_Multishot_Squeezing_for_128b_Security)
+{
+  expect_same_output_for_deterministic_csprng_with_oneshot_vs_multishot_squeezing<128>();
+}
+
+TEST(RandomShake, Deterministic_CSPRNG_Oneshot_vs_Multishot_Squeezing_for_192b_Security)
+{
+  expect_same_output_for_deterministic_csprng_with_oneshot_vs_multishot_squeezing<192>();
+}
+
+TEST(RandomShake, Deterministic_CSPRNG_Oneshot_vs_Multishot_Squeezing_for_256b_Security)
+{
+  expect_same_output_for_deterministic_csprng_with_oneshot_vs_multishot_squeezing<256>();
+}
