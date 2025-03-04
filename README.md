@@ -52,13 +52,13 @@ CSPRNG Operation for bit-security level `256` | Time taken on AWS EC2 Instance `
 Deterministic seeding of instance | 2.71us | 2.98us
 Non-Deterministic seeding of instance | 7.39us | 5.14us
 
-CSPRNG Operation for bit-security level `256` | Bandwidth on AWS EC2 Instance `c7i.large` | Bandwidth on  AWS EC2 Instance `c8g.large`
---- | --- | ---
-Sampling of `u8` | 318.48MB/s | 195.94MB/s
-Sampling of `u16` | 363.12MB/s | 255.14MB/s
-Sampling of `u32` | 371.63MB/s | 304.14MB/s
-Sampling of `u64` | 385.68MB/s | 336.22MB/s
-Sampling arbitrary long byte sequence | 404.15MB/s | 345.12MB/s
+CSPRNG Operation for bit-security level `256` | Bandwidth on AWS EC2 Instance `c7i.large` (Linux 6.8.0-1021-aws, g++ 13) | Bandwidth on AWS EC2 Instance `c8g.large` (Linux 6.8.0-1021-aws, g++ 13)
+---|---|---
+Sampling of `u8` | 379.1 MB/s | 199.9 MB/s
+Sampling of `u16` | 428.4 MB/s | 258.0 MB/s
+Sampling of `u32` | 459.1 MB/s | 303.8 MB/s
+Sampling of `u64` | 470.4 MB/s | 331.2 MB/s
+Sampling arbitrary long byte sequence | 483.7 MB/s | 357.5 MB/s
 
 ## How to setup ?
 
@@ -139,31 +139,16 @@ Benchmarking Results on DESKTOP -grade Machine(s)
 ---
 
 ### On 12th Gen Intel(R) Core(TM) i7-1260P
-
-Compiled with `g++ (Ubuntu 14.2.0-4ubuntu2) 14.2.0`, while running on `Linux 6.11.0-9-generic x86_64`.
-
-I maintain the benchmark results in JSON format @ [bench_result_on_Linux_6.11.0-9-generic_x86_64_with_g++_14](./bench_result_on_Linux_6.11.0-9-generic_x86_64_with_g++_14.json).
-
-### On Raspberry Pi 4B i.e. ARM Cortex-A72
-
-Compiled with `g++ (Debian 12.2.0-14) 12.2.0`, while running on `Linux 6.6.51+rpt-rpi-v8 aarch64`.
-
-Find the benchmark results in JSON format @ [bench_result_on_Linux_6.6.51+rpt-rpi-v8_aarch64_with_g++_12](./bench_result_on_Linux_6.6.51+rpt-rpi-v8_aarch64_with_g++_12.json).
+I maintain the benchmark results in JSON format @ [bench_result_on_Linux_6.11.0-18-generic_x86_64_with_g++_14](./bench_result_on_Linux_6.11.0-18-generic_x86_64_with_g++_14.json).
 
 Benchmarking Results on SERVER -grade Machine(s)
 ---
 
 ### On Intel(R) Xeon(R) Platinum 8488C i.e. AWS EC2 Instance `c7i.large`
-
-Compiled with `g++ (Ubuntu 13.2.0-23ubuntu4) 13.2.0`, while running on `Linux 6.8.0-1016-aws x86_64`.
-
-Find the benchmark results in JSON format @ [bench_result_on_Linux_6.8.0-1016-aws_x86_64_with_g++_13](./bench_result_on_Linux_6.8.0-1016-aws_x86_64_with_g++_13.json).
+Find the benchmark results in JSON format @ [bench_result_on_Linux_6.8.0-1021-aws_x86_64_with_g++_13](./bench_result_on_Linux_6.8.0-1021-aws_x86_64_with_g++_13.json).
 
 ### On AWS EC2 Instance `c8g.large` i.e. AWS Graviton4
-
-Compiled with `g++ (Ubuntu 13.2.0-23ubuntu4) 13.2.0`, while running on `Linux 6.8.0-1016-aws aarch64`.
-
-Find the benchmark results in JSON format @ [bench_result_on_Linux_6.8.0-1016-aws_aarch64_with_g++_13](./bench_result_on_Linux_6.8.0-1016-aws_aarch64_with_g++_13.json).
+Find the benchmark results in JSON format @ [bench_result_on_Linux_6.8.0-1021-aws_aarch64_with_g++_13](./bench_result_on_Linux_6.8.0-1021-aws_aarch64_with_g++_13.json).
 
 ## How to use ?
 
@@ -225,4 +210,4 @@ c++  -std=c++20 -Wall -Wextra -Wpedantic -O3 -march=native -I ./include -I ./sha
 
 In case you just want to generate arbitrary many random bytes, there is an API `generate` - which can generate arbitrary many random bytes and it should be fine calling this as many times needed.
 
-I maintain a few examples of using "RandomShake" API with various C++ STL distributions @ [examples](./examples) directory.
+I maintain a few examples of using "RandomShake" API with various C++ STL distributions @ [examples](./examples) directory. You can run them all by `$ make example -j`.
