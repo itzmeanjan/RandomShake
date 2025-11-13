@@ -1,6 +1,7 @@
 #pragma once
 #include "sha3/internals/force_inline.hpp"
 #include "sha3/shake256.hpp"
+#include "sha3/turboshake256.hpp"
 #include <array>
 #include <bit>
 #include <cstdint>
@@ -27,15 +28,8 @@ check_endianness()
 }
 
 /**
-  After squeezing every these many bytes from underlying SHAKE256 Xof, we zeroize first `n` bytes of
-  Keccak permutation state and re-apply permutation.
- */
-static constexpr size_t RANDOMSHAKE_RATCHET_PERIOD_BYTE_LEN = shake256::RATE;
-
-/**
-  Ensures that value is materialized (and not optimized away), but doesn't clobber memory, like google-benchmark does.
-
-  Taken from https://theunixzoo.co.uk/blog/2021-10-14-preventing-optimisations.html.
+ * Ensures that value is materialized (and not optimized away), but doesn't clobber memory, like google-benchmark does.
+ * Taken from https://theunixzoo.co.uk/blog/2021-10-14-preventing-optimisations.html.
  */
 template<typename Tp>
 forceinline void
@@ -44,27 +38,64 @@ DoNotOptimize(Tp& value)
   asm volatile("" : "+r,m"(value) : :);
 }
 
+// Enum listing supported eXtendable Output Functions (XOFs), which can be used for producing pseudo-random byte stream.
+enum class xof_kind_t : uint8_t
+{
+  SHAKE256,      // Based on 24-rounds keccak permutation
+  TURBOSHAKE256, // Based on 12-rounds keccak permutation. Almost doubles the throughput.
+};
+
+// A helper trait, for selecting which XOF to use in RandomSHAKE CSPRNG.
+template<xof_kind_t xof_kind>
+struct xof_selector_t
+{};
+
+// Specialization for SHAKE256 XOF.
+template<>
+struct xof_selector_t<xof_kind_t::SHAKE256>
+{
+  using type = shake256::shake256_t;
+  static constexpr size_t rate = shake256::RATE;
+
+  // Everytime these many bytes are squeezed from underlying sponge, we zeroize first `n` bytes of Keccak permutation
+  // state and re-apply 24-rounds permutation.
+  static constexpr size_t ratchet_period_byte_len = shake256::RATE;
+};
+
+// Specialization for TurboSHAKE256 XOF.
+template<>
+struct xof_selector_t<xof_kind_t::TURBOSHAKE256>
+{
+  using type = turboshake256::turboshake256_t;
+  static constexpr size_t rate = turboshake256::RATE;
+
+  // Everytime these many bytes are squeezed from underlying sponge, we zeroize first `n` bytes of Keccak permutation
+  // state and re-apply 12-rounds permutation.
+  static constexpr size_t ratchet_period_byte_len = turboshake256::RATE;
+};
+
 /**
-  RandomShake - SHAKE256 -backed *C*ryptographically *S*ecure *P*seudo *R*andom *N*umber *G*enerator.
-
-  Allowing both (a) `std::random_device` sampled seed, (b) User provided seed -based initialization of CSPRNG.
-  After every `RANDOMSHAKE_RATCHET_PERIOD_BYTE_LEN` -many bytes are squeezed from SHAKE256 Xof instance, we perform
-  ratcheting i.e. zeroing out of first `ratchet_byte_len` -many bytes of Keccak permutation state and re-applying
-  permutation.
-
-  Design of this CSPRNG collects inspiration from https://seth.rocks/articles/cpprandom.
+ * RandomSHAKE - TurboSHAKE256 (by default) or SHAKE256-backed Cryptographically Secure Pseudo-Random Number
+ * Generator (CSPRNG).
+ *
+ * Allowing both (a) `std::random_device` sampled seed, (b) User provided seed-based initialization of CSPRNG.
+ * After every `ratchet_period_byte_len`-many bytes are squeezed from the underlying XOF instance, we perform
+ * ratcheting i.e. zeroing out of first `ratchet_byte_len` -many bytes of Keccak permutation state and re-applying
+ * permutation.
+ *
+ * Design of this CSPRNG collects inspiration from https://seth.rocks/articles/cpprandom.
  */
-template<size_t bit_security_level, typename UIntType = uint8_t>
+template<size_t bit_security_level, typename UIntType = uint8_t, xof_kind_t xof_kind = xof_kind_t::TURBOSHAKE256>
   requires(check_bit_security_level(bit_security_level) && std::is_unsigned_v<UIntType> && check_endianness())
 struct randomshake_t
 {
 private:
-  shake256::shake256_t state{};
-  std::array<uint8_t, RANDOMSHAKE_RATCHET_PERIOD_BYTE_LEN> buffer{};
-  size_t buffer_offset = 0;
+  xof_selector_t<xof_kind>::type state{};
+  std::array<uint8_t, xof_selector_t<xof_kind>::ratchet_period_byte_len> buffer{};
+  size_t buffer_offset = 0u;
 
   // These many bytes are zeroed from the beginning of the Keccak permutation state during ratchet operation.
-  const size_t ratchet_byte_len = std::min(shake256::RATE, bit_security_level) / std::numeric_limits<uint8_t>::digits;
+  static constexpr size_t ratchet_byte_len = std::min(xof_selector_t<xof_kind>::rate, bit_security_level) / 8u;
 
 public:
   using result_type = UIntType;
@@ -73,9 +104,11 @@ public:
   static constexpr auto min = std::numeric_limits<result_type>::min;
   static constexpr auto max = std::numeric_limits<result_type>::max;
 
-  // Samples `seed_byte_len` -many bytes from std::random_device and initializes SHAKE256 Xof - making it ready for use.
-  // Before you use this constructor, I strongly advise you to read
-  // https://en.cppreference.com/w/cpp/numeric/random/random_device.
+  /**
+   * Samples `seed_byte_len` -many bytes from std::random_device and initializes chosen XOF - making it ready for use.
+   * Before you use this constructor, I strongly advise you to read
+   * https://en.cppreference.com/w/cpp/numeric/random/random_device.
+   */
   forceinline randomshake_t()
   {
     std::array<uint8_t, seed_byte_len> seed{};
@@ -105,7 +138,10 @@ public:
     state.squeeze(buffer);
   }
 
-  // Expects user to supply us with `seed_byte_len` -bytes seed, which is used for initializing underlying SHAKE256 Xof.
+  /**
+   * Explicit constructor. Expects user to supply us with `seed_byte_len` -bytes seed, which is used for initializing
+   * the underlying XOF. It is user's responsibility to ensure that the supplied seed has sufficient entropy.
+   */
   forceinline explicit constexpr randomshake_t(std::span<const uint8_t, seed_byte_len> seed)
   {
     state.absorb(seed);
@@ -139,7 +175,7 @@ public:
     const size_t readble_num_bytes = buffer.size() - buffer_offset;
 
     static_assert(
-      RANDOMSHAKE_RATCHET_PERIOD_BYTE_LEN % required_num_bytes == 0,
+      xof_selector_t<xof_kind>::ratchet_period_byte_len % required_num_bytes == 0,
       "Buffer size nust be a multiple of `required_num_bytes`, for following ratchet->squeeze to work correctly !");
 
     // When the buffer is exhausted, it's time to ratchet and fill the buffer with new ready-to-use random bytes.
