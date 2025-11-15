@@ -1,4 +1,5 @@
 #include "randomshake/randomshake.hpp"
+#include "test_consts.hpp"
 #include "test_utils.hpp"
 #include <algorithm>
 #include <array>
@@ -6,8 +7,6 @@
 #include <cstring>
 #include <gtest/gtest.h>
 #include <vector>
-
-static constexpr size_t GENERATED_RANDOM_BYTE_LEN = 1'024 * 1'024; // = 1MB
 
 TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_Produces_Eq_Output)
 {
