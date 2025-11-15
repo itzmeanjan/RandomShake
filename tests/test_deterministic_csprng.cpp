@@ -46,7 +46,27 @@ TEST(RandomShake, Deterministic_CSPRNG_Using_Diff_Seed_Produces_Ne_Output)
   EXPECT_NE(rand_bytes_a, rand_bytes_b);
 }
 
-TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Result_Type_Produces_Same_Output)
+TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_XOF_Kind_Produces_Ne_Output)
+{
+  std::array<uint8_t, randomshake::randomshake_t<uint8_t, randomshake::xof_kind_t::SHAKE256>::seed_byte_len> seed_a{};
+  seed_a.fill(0xde);
+
+  std::vector<uint8_t> rand_bytes_a(GENERATED_RANDOM_BYTE_LEN, 0x00);
+  std::vector<uint8_t> rand_bytes_b(GENERATED_RANDOM_BYTE_LEN, 0x00);
+
+  randomshake::randomshake_t<uint8_t, randomshake::xof_kind_t::SHAKE256> csprng_a(seed_a);
+  std::ranges::generate(rand_bytes_a, [&]() { return csprng_a(); });
+
+  std::array<uint8_t, randomshake::randomshake_t<uint8_t, randomshake::xof_kind_t::TURBOSHAKE256>::seed_byte_len> seed_b{};
+  seed_b.fill(0xde);
+
+  randomshake::randomshake_t<> csprng_b(seed_b);
+  std::ranges::generate(rand_bytes_b, [&]() { return csprng_b(); });
+
+  EXPECT_NE(rand_bytes_a, rand_bytes_b);
+}
+
+TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Result_Type_Produces_Eq_Output)
 {
   std::array<uint8_t, randomshake::randomshake_t<>::seed_byte_len> seed{};
   seed.fill(0xde);
