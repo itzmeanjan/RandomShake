@@ -14,6 +14,11 @@ This is where "RandomSHAKE" comes, collecting inspiration from <https://seth.roc
 > Using the non-deterministic CSPRNG initialization API is very convenient, but there is a caveat - this CSPRNG samples its seed from `std::random_device` engine, which is supposed to be non-deterministic, but is not guaranteed to be - it's implementation-defined behavior. I strongly advise you to read <https://en.cppreference.com/w/cpp/numeric/random/random_device>.
 
 ```cpp
+// Simply declare CSPRNG, producing pseudo-random uint8_t, backed by TurboSHAKE256 XOF.
+randomshake::randomshake_t csprng;
+
+// --- Or, declare alias for shorter type name. ---
+
 // Result type: uint8_t, XOF: TurboSHAKE256. Default case.
 using csprng_t = randomshake::randomshake_t<>;
 
@@ -59,17 +64,17 @@ csprng.generate(rand_values);
 
 ### "RandomSHAKE" CSPRNG Performance Overview
 
-CSPRNG Operation | Time taken on AWS EC2 Instance `c7i.large` | Time taken on AWS EC2 Instance `c8g.large`
+CSPRNG Operation | Time taken on AWS EC2 Instance `c8i.large` | Time taken on AWS EC2 Instance `c8g.large`
 --- | --- | ---
-Deterministic seeding of instance | 1.63 us | 1.83 us
-Non-Deterministic seeding of instance | 30.34 us | 11.49 us
+Deterministic seeding of instance | 1.3 us | 1.8 us
+Non-Deterministic seeding of instance | 38.5 us | 11.5 us
 --- | --- | ---
-Sampling of `u8` | 315.4 MB/s | 202.7 MB/s
-Sampling of `u16` | 208.5 MB/s | 278.4 MB/s
-Sampling of `u32` | 315.1 MB/s | 388.3 MB/s
-Sampling of `u64` | 588.5 MB/s | 491.5 MB/s
-Sampling arbitrary long byte sequence (using TurboSHAKE256 XOF, default) | 718.8 MB/s | 637.5 MB/s
-Sampling arbitrary long byte sequence (using SHAKE256 XOF, explicit) | 400.1 MB/s | 354.7 MB/s
+Sampling of `u8` | 625.4 MB/s | 255.2 MB/s
+Sampling of `u16` | 730.3 MB/s | 363.8 MB/s
+Sampling of `u32` | 797.1 MB/s | 468.1 MB/s
+Sampling of `u64` | 833.3 MB/s | 545.8 MB/s
+Sampling arbitrary long byte sequence (using TurboSHAKE256 XOF, default) | 869.2 MB/s | 637.5 MB/s
+Sampling arbitrary long byte sequence (using SHAKE256 XOF, explicit) | 485.2 MB/s | 354.7 MB/s
 
 ## How to setup ?
 
@@ -165,7 +170,7 @@ I've run benchmarks on some platforms and here are the results.
 
 ### Benchmarking on SERVER-grade Machine(s)
 
-- x86_64. AWS EC2 Instance `c7i.large` i.e. Intel Xeon. JSON dump @ [bench_result_on_Linux_6.14.0-1015-aws_x86_64_with_g++_13](./bench_result_on_Linux_6.14.0-1015-aws_x86_64_with_g++_13.json).
+- x86_64. AWS EC2 Instance `c8i.large` i.e. Intel Xeon 6975P-C. JSON dump @ [bench_result_on_Linux_6.14.0-1015-aws_x86_64_with_g++_13](./bench_result_on_Linux_6.14.0-1015-aws_x86_64_with_g++_13.json).
 - aarch64. AWS EC2 Instance `c8g.large` i.e. AWS Graviton4. JSON dump @ [bench_result_on_Linux_6.14.0-1015-aws_aarch64_with_g++_13](./bench_result_on_Linux_6.14.0-1015-aws_aarch64_with_g++_13.json).
 
 ## How to use ?
