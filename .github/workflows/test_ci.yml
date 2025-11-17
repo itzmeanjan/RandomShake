@@ -1,5 +1,5 @@
 # Collects inspiration from https://github.com/itzmeanjan/sha3/blob/fb21648e136d7a64ce5c065fa829d4e3254414f4/.github/workflows/test_ci.yml
-name: Test RandomShake Cryptographically Secure PRNG
+name: Test RandomShake CSPRNG
 
 on:
   push:
@@ -12,7 +12,10 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [
+            ubuntu-latest, # x86_64
+            macos-latest, # aarch64
+          ]
         compiler: [g++, clang++]
         build_type: [debug, release]
         test_type: [standard, asan, ubsan]
