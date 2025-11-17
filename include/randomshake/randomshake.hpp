@@ -183,11 +183,27 @@ public:
   // Squeezes a random value of type `result_type`.
   [[nodiscard("Internal state of CSPRNG has changed, you should consume this value")]] forceinline result_type operator()()
   {
-    result_type result{};
-    auto res_ptr = reinterpret_cast<uint8_t*>(&result);
-    auto res_span = std::span<uint8_t>(res_ptr, sizeof(result));
+    constexpr size_t required_num_bytes = sizeof(result_type);
+    const size_t readble_num_bytes = buffer.size() - buffer_offset;
 
-    this->generate(res_span);
+    static_assert(xof_selector_t<xof_kind>::ratchet_period_byte_len % required_num_bytes == 0,
+                  "Buffer size nust be a multiple of `required_num_bytes`, for following ratchet()->squeeze() to work correctly !");
+
+    // When the buffer is exhausted, it's time to ratchet and fill the buffer with new ready-to-use random bytes.
+    if (readble_num_bytes == 0) {
+      state.ratchet(xof_selector_t<xof_kind>::ratchet_byte_len);
+      state.squeeze(buffer);
+      buffer_offset = 0;
+    }
+
+    result_type result{};
+
+    auto src_ptr = reinterpret_cast<const uint8_t*>(buffer.data()) + buffer_offset;
+    auto dst_ptr = reinterpret_cast<uint8_t*>(&result);
+
+    std::memcpy(dst_ptr, src_ptr, required_num_bytes);
+    buffer_offset += required_num_bytes;
+
     return result;
   }
 
