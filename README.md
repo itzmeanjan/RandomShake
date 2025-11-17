@@ -1,38 +1,50 @@
-# RandomShake
-Shake256 Xof -based Portable C++20 Cryptographically Secure Pseudo Random Number Generator (CSPRNG) - plug and play with C++ `<random>` header's random distributions.
+# RandomSHAKE
+
+(Turbo)SHAKE256 XOF -based Portable C++20 Cryptographically Secure Pseudo Random Number Generator (CSPRNG) - plug and play with C++ standard library's `<random>` header's statistical distributions.
 
 ## Why ?
 
-C++11 introduced `<random>` header to its standard library, which offers multiple pseudo-random number generator engines and distributions. The design of the `<random>` header is very much modular, it's possible to plug any psuedo-random number generator engine with any distribution and start getting results as per the rules of the statistical distribution. All that is needed is providing the distribution with a source *u*niform *r*andom *n*umber *g*enerator (URNG). One thing that the standard library's `<random>` header lacks is the psuedo-random number generator engines, which come by default, are not cryptographically secure. Hence using those engines with provided distributions, in cryptographic settings, might be quite catastrophic !
+C++11 introduced `<random>` header to its standard library, which offers multiple pseudo-random number generator engines and statistical distributions. The design of the `<random>` header is very much modular, it's possible to plug any psuedo-random number generator engine with any distribution and start getting results as per the rules of the statistical distribution. All that is needed, is providing the distribution with a source *U*niform *R*andom *N*umber *G*enerator (URNG). One thing that the standard library's `<random>` header lacks is a cryptographically secure psuedo-random number generator engine. Using any of the provided engines such as Mersenne Twister or Linear Congruential engine with provided distributions, in cryptographic settings, might be quite catastrophic!
 
-This is where "RandomShake" comes, collecting inspiration from https://seth.rocks/articles/cpprandom.
+This is where "RandomSHAKE" comes, collecting inspiration from <https://seth.rocks/articles/cpprandom>.
 
-"RandomShake" is a *C*ryptographically *S*ecure *P*seudo-*R*andom *N*umber *G*enerator (CSPRNG) engine, which is backed by Shake256 extendable output function (Xof) with frequent ratcheting of the underlying keccak-1600 permutation state, generating unsigned integer (of all standard bit-widths) stream for all three NIST security levels. It's very easy to plug this CSPRNG engine into any of the C++ standard library's random distributions. Just plug and play. And now you can use those distributions with "RandomShake" CSPRNG, in cryptographic settings. It also offers API for generating arbitrary many bytes at a time. "RandomShake" offers following two ways for seeding the internal Shake256 state.
+"RandomSHAKE" is a *C*ryptographically *S*ecure *P*seudo-*R*andom *N*umber *G*enerator (CSPRNG) engine, which is backed by (Turbo)SHAKE256 eXtendable Output Function (XOF) with occasional ratcheting, generating unsigned integer (of all standard bit-widths) stream. It's optional to specify which XOF you want to use. By default you get TurboSHAKE256, which doubles the throughput compared to SHAKE256. In case you really want SHAKE256, you need to be explicit. For initializing the CSPRNG, either you can rely on the convenient default constructor, which samples initial seed from the **non-deterministic** `std::random_device` API or you can explicitly supply a seed for **deterministic** and reproducible behaviour. It's very easy to plug this CSPRNG engine into any of the C++ standard library's statistical distributions defined in `<random>` header. Just plug and play. And now you can use those distributions with "RandomSHAKE" CSPRNG, in cryptographic settings - producing integers or floats, whatever you need. It also offers API for generating arbitrary long byte stream at a time.
 
-- [**Non-deterministic CSPRNG**] Sampling k -bit non-deterministic randomness from `std::random_device` engine.
-- [**Deterministic and re-producible CSPRNG**] Taking k -bit seed as input from function caller.
-
-Using the non-deterministic CSPRNG is very convenient, but there is a caveat - this CSPRNG samples its seed from `std::random_device` engine, which is supposed to be non-deterministic, but is not guaranteed to be - it's implementation-defined behavior. I strongly advise you to read https://en.cppreference.com/w/cpp/numeric/random/random_device.
+> [!CAUTION]
+> Using the non-deterministic CSPRNG initialization API is very convenient, but there is a caveat - this CSPRNG samples its seed from `std::random_device` engine, which is supposed to be non-deterministic, but is not guaranteed to be - it's implementation-defined behavior. I strongly advise you to read <https://en.cppreference.com/w/cpp/numeric/random/random_device>.
 
 ```cpp
-using csprng_256b_t = randomshake::randomshake_t<256>;
+// Result type: uint8_t, XOF: TurboSHAKE256. Default case.
+using csprng_t = randomshake::randomshake_t<>;
 
-csprng_256b_t csprng; // Automatically seeded using `std::random_device`
+// Or
+// Result type: uint16_t, XOF: TurboSHAKE256. Override only default result data type.
+using csprng_t = randomshake::randomshake_t<uint16_t>;
+
+// Or
+// Result type: uint8_t, XOF: SHAKE256. Override only default XOF.
+using csprng_t = randomshake::randomshake_t<uint8_t, randomshake::xof_kind_t::SHAKE256>;
+
+// Or
+// Result type: uint64_t, XOF: SHAKE256. Override both default result data type and XOF.
+using csprng_t = randomshake::randomshake_t<uint64_t, randomshake::xof_kind_t::SHAKE256>;
+
+csprng_t csprng; // Default constructor. Automatically seeded using `std::random_device`. Non-deterministic.
 ```
 
-While for the deterministic CSPRNG, as an user, it's your responsibility to supply a seed of required byte length with sufficient entropy - this CSPRNG is the one to use, if you need reproducible random bytes.
+While for the deterministic CSPRNG, as an user, it's your responsibility to supply a seed of required byte length with sufficient entropy. You should use this CSPRNG API, if you need reproducible random bytes.
 
 ```cpp
-std::array<uint8_t, csprng_256b_t::seed_byte_len> seed{};
-seed.fill(0xde);            // Please don't do it in any practical scenario !
+std::array<uint8_t, csprng_t::seed_byte_len> seed{};
+seed.fill(0xde);       // Please don't do it in any practical scenario !
 
-csprng_256b_t csprng(seed); // Initialized by the seed we supply
+csprng_t csprng(seed); // Explicit constructor. Initialized by the seed, we supply. Deterministic.
 ```
 
 Using the CSPRNG instance for sampling random value(s), is super easy.
 
 ```cpp
-// Sample a single random uint8_t.
+// Sample a single random uint8_t or uint16_t or uint32_t or uint64_t. Based on result data type template parameter.
 const auto random_value = csprng();
 
 // or
@@ -41,24 +53,23 @@ std::vector<uint8_t> rand_values(16, 0x00);
 std::ranges::generate(rand_values, [&]() { return csprng(); });
 
 // or
-// Fill the vector, by squeezing many bytes at a time.
+// Fill the vector, by squeezing many bytes at a time. Convenient `generate` API for squeezing arbitrary many bytes.
 csprng.generate(rand_values);
 ```
 
-### "RandomShake" CSPRNG Performance Overview
+### "RandomSHAKE" CSPRNG Performance Overview
 
-CSPRNG Operation for bit-security level `256` | Time taken on AWS EC2 Instance `c7i.large` | Time taken on AWS EC2 Instance `c8g.large`
+CSPRNG Operation | Time taken on AWS EC2 Instance `c7i.large` | Time taken on AWS EC2 Instance `c8g.large`
 --- | --- | ---
-Deterministic seeding of instance | 2.71us | 2.98us
-Non-Deterministic seeding of instance | 7.39us | 5.14us
-
-CSPRNG Operation for bit-security level `256` | Bandwidth on AWS EC2 Instance `c7i.large` (Linux 6.8.0-1021-aws, g++ 13) | Bandwidth on AWS EC2 Instance `c8g.large` (Linux 6.8.0-1021-aws, g++ 13)
----|---|---
-Sampling of `u8` | 379.1 MB/s | 199.9 MB/s
-Sampling of `u16` | 428.4 MB/s | 258.0 MB/s
-Sampling of `u32` | 459.1 MB/s | 303.8 MB/s
-Sampling of `u64` | 470.4 MB/s | 331.2 MB/s
-Sampling arbitrary long byte sequence | 483.7 MB/s | 357.5 MB/s
+Deterministic seeding of instance | 1.63 us | 1.83 us
+Non-Deterministic seeding of instance | 30.34 us | 11.49 us
+--- | --- | ---
+Sampling of `u8` | 315.4 MB/s | 202.7 MB/s
+Sampling of `u16` | 208.5 MB/s | 278.4 MB/s
+Sampling of `u32` | 315.1 MB/s | 388.3 MB/s
+Sampling of `u64` | 588.5 MB/s | 491.5 MB/s
+Sampling arbitrary long byte sequence (using TurboSHAKE256 XOF, default) | 718.8 MB/s | 637.5 MB/s
+Sampling arbitrary long byte sequence (using SHAKE256 XOF, explicit) | 400.1 MB/s | 354.7 MB/s
 
 ## How to setup ?
 
@@ -67,27 +78,27 @@ Sampling arbitrary long byte sequence | 483.7 MB/s | 357.5 MB/s
 ```bash
 # I'm using
 $ c++ --version
-c++ (Ubuntu 14.2.0-4ubuntu2) 14.2.0
+c++ (Ubuntu 15.2.0-4ubuntu4) 15.2.0
 ```
 
 - You will also need both `make` and `cmake` for building this project and test framework/ benchmark harness.
 
 ```bash
 $ make --version
-GNU Make 4.3
+GNU Make 4.4.1
 
 $ cmake --version
-cmake version 3.30.3
+cmake version 3.31.6
 ```
 
-- For running tests, you must have `google-test` globally installed. Follow steps described @ https://github.com/google/googletest/blob/main/googletest/README.md.
-- For running benchmarks, you must have `google-benchmark` globally installed. You may find steps described @ https://github.com/google/benchmark/?tab=readme-ov-file#installation helpful.
+- For running tests, you must have `google-test` globally installed. Follow steps described @ <https://github.com/google/googletest/blob/main/googletest/README.md>.
+- For running benchmarks, you must have `google-benchmark` globally installed. You may find steps described @ <https://github.com/google/benchmark/?tab=readme-ov-file#installation> helpful.
 
 > [!NOTE]
-> In case you are planning to run benchmarks on a machine which runs GNU/Linux kernel, I suggest you build `google-benchmark` with libPFM, so that you get to know how many CPU cycles does it take for each benchmarked functions to execute. I describe the steps @ https://gist.github.com/itzmeanjan/05dc3e946f635d00c5e0b21aae6203a7.
+> In case you are planning to run benchmarks on a machine which runs GNU/Linux kernel, I suggest you build `google-benchmark` with libPFM, so that you get to know how many CPU cycles does it take for each benchmarked functions to execute. I describe the steps @ <https://gist.github.com/itzmeanjan/05dc3e946f635d00c5e0b21aae6203a7>.
 
 > [!NOTE]
-> I use the BASH script @ https://gist.github.com/itzmeanjan/84b7df57604708e33f04fc43e55ecb0c to quickly setup a GNU/Linux machine, so that I can run tests and benchmarks. Running this script does the whole setup phase for you on Ubuntu and large family of OS.
+> I use the BASH script @ <https://gist.github.com/itzmeanjan/84b7df57604708e33f04fc43e55ecb0c> to quickly setup a GNU/Linux machine, so that I can run tests and benchmarks. Running this script does the whole setup phase for you on Ubuntu and adjacent family of Linux distributions.
 
 ## How to test ?
 
@@ -131,28 +142,22 @@ make perf -j
 ```
 
 > [!CAUTION]
-> You must disable CPU frequency scaling during benchmarking. I found guide @ https://github.com/google/benchmark/blob/4931aefb51d1e5872b096a97f43e13fa0fc33c8c/docs/reducing_variance.md helpful.
+> You must disable CPU frequency scaling during benchmarking. I found guide @ <https://github.com/google/benchmark/blob/4931aefb51d1e5872b096a97f43e13fa0fc33c8c/docs/reducing_variance.md> helpful.
 
 I've run benchmarks on some platforms and here are the results.
 
-Benchmarking Results on DESKTOP -grade Machine(s)
----
+### Benchmarking on DESKTOP-grade Machine(s)
 
-### On 12th Gen Intel(R) Core(TM) i7-1260P
-I maintain the benchmark results in JSON format @ [bench_result_on_Linux_6.11.0-18-generic_x86_64_with_g++_14](./bench_result_on_Linux_6.11.0-18-generic_x86_64_with_g++_14.json).
+- x86_64. 12th Gen Intel(R) Core(TM) i7-1260P. JSON dump @ [bench_result_on_Linux_6.17.0-6-generic_x86_64_with_g++_15](./bench_result_on_Linux_6.17.0-6-generic_x86_64_with_g++_15.json).
 
-Benchmarking Results on SERVER -grade Machine(s)
----
+### Benchmarking on SERVER-grade Machine(s)
 
-### On Intel(R) Xeon(R) Platinum 8488C i.e. AWS EC2 Instance `c7i.large`
-Find the benchmark results in JSON format @ [bench_result_on_Linux_6.8.0-1021-aws_x86_64_with_g++_13](./bench_result_on_Linux_6.8.0-1021-aws_x86_64_with_g++_13.json).
-
-### On AWS EC2 Instance `c8g.large` i.e. AWS Graviton4
-Find the benchmark results in JSON format @ [bench_result_on_Linux_6.8.0-1021-aws_aarch64_with_g++_13](./bench_result_on_Linux_6.8.0-1021-aws_aarch64_with_g++_13.json).
+- x86_64. AWS EC2 Instance `c7i.large` i.e. Intel Xeon. JSON dump @ [bench_result_on_Linux_6.14.0-1015-aws_x86_64_with_g++_13](./bench_result_on_Linux_6.14.0-1015-aws_x86_64_with_g++_13.json).
+- aarch64. AWS EC2 Instance `c8g.large` i.e. AWS Graviton4. JSON dump @ [bench_result_on_Linux_6.14.0-1015-aws_aarch64_with_g++_13](./bench_result_on_Linux_6.14.0-1015-aws_aarch64_with_g++_13.json).
 
 ## How to use ?
 
-Using "RandomShake" CSPRNG is very easy.
+Using "RandomSHAKE" CSPRNG is very easy.
 
 - Clone this repository, whiile importing all git submodule -based dependencies.
 
@@ -174,7 +179,7 @@ git clone https://github.com/itzmeanjan/RandomShake.git --recurse-submodules
 int
 main()
 {
-  randomshake::randomshake_t<256> csprng;
+  randomshake::randomshake_t<> csprng;
   std::binomial_distribution dist{ 1'000, .5 };
 
   for (auto _ : std::ranges::iota_view{ 1, 10 }) {
@@ -186,9 +191,9 @@ main()
 ```
 
 > [!NOTE]
-> In above demonstration, I'm showing how to use "RandomShake" CSPRNG (at 256 -bit security) with C++ standard library's Binomial Distribution, but it should be fairly easy, plugging this CSPRNG with any other available distribution.
+> In above demonstration, I'm showing how to use "RandomSHAKE" CSPRNG with C++ standard library's Binomial Distribution, but it should be fairly easy, plugging this CSPRNG with any other available distribution in `<random>` header.
 
-- Compile the C++ translation unit, while including path to both "RandomShake" and "sha3".
+- Compile the C++ translation unit, while including path to both "RandomSHAKE" and "sha3".
 
 ```bash
 c++  -std=c++20 -Wall -Wextra -Wpedantic -O3 -march=native -I ./include -I ./sha3/include examples/csprng_with_binomial_dist.cpp
@@ -208,6 +213,6 @@ c++  -std=c++20 -Wall -Wextra -Wpedantic -O3 -march=native -I ./include -I ./sha
 [BINOMIAL dISTRIBUTION] Number of heads in 1,000 flips: 491
 ```
 
-In case you just want to generate arbitrary many random bytes, there is an API `generate` - which can generate arbitrary many random bytes and it should be fine calling this as many times needed.
+In case you just want to generate arbitrary many random bytes, there is an API `generate` - which can generate arbitrary many random bytes and it should be fine calling this as many times needed. Ratcheting is taken care of under the hood.
 
-I maintain a few examples of using "RandomShake" API with various C++ STL distributions @ [examples](./examples) directory. You can run them all by `$ make example -j`.
+I maintain a few examples of using "RandomSHAKE" API with various C++ STL distributions @ [examples](./examples) directory. You can run them all by `$ make example -j`.
