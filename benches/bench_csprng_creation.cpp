@@ -11,7 +11,7 @@ bench_deterministic_csprng_creation(benchmark::State& state)
 
   for (auto _ : state) {
     benchmark::DoNotOptimize(seed);
-    randomshake::randomshake_t<> csprng(seed);
+    randomshake::randomshake_t csprng(seed);
 
     benchmark::DoNotOptimize(&csprng);
     benchmark::ClobberMemory();
@@ -22,7 +22,7 @@ static void
 bench_nondeterministic_csprng_creation(benchmark::State& state)
 {
   for (auto _ : state) {
-    randomshake::randomshake_t<> csprng;
+    randomshake::randomshake_t csprng;
 
     benchmark::DoNotOptimize(&csprng);
     benchmark::ClobberMemory();

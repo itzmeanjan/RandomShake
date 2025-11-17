@@ -47,7 +47,7 @@ main()
 
   assert(start_interval < end_interval);
 
-  randomshake::randomshake_t<> csprng;
+  randomshake::randomshake_t csprng;
   std::uniform_real_distribution<float> dist{ start_interval, end_interval };
 
   constexpr size_t NUMBER_OF_RANDOM_FLOATS = 1'000'000;

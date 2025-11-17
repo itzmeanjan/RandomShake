@@ -10,7 +10,7 @@
 int
 main()
 {
-  randomshake::randomshake_t<> csprng;
+  randomshake::randomshake_t csprng;
   std::bernoulli_distribution dist{ .25 };
 
   std::map<bool, size_t> hist;

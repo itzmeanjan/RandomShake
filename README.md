@@ -192,7 +192,7 @@ git clone https://github.com/itzmeanjan/RandomShake.git --recurse-submodules
 int
 main()
 {
-  randomshake::randomshake_t<> csprng;
+  randomshake::randomshake_t csprng;
   std::binomial_distribution dist{ 1'000, .5 };
 
   for (auto _ : std::ranges::iota_view{ 1, 10 }) {

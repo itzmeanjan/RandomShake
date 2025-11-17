@@ -16,10 +16,10 @@ TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Same_Seed_Produces_Eq_Output)
   std::vector<uint8_t> rand_bytes_a(GENERATED_RANDOM_BYTE_LEN, 0x00);
   std::vector<uint8_t> rand_bytes_b(GENERATED_RANDOM_BYTE_LEN, 0xff);
 
-  randomshake::randomshake_t<> csprng_a(seed);
+  randomshake::randomshake_t csprng_a(seed);
   std::ranges::generate(rand_bytes_a, [&]() { return csprng_a(); });
 
-  randomshake::randomshake_t<> csprng_b(seed);
+  randomshake::randomshake_t csprng_b(seed);
   std::ranges::generate(rand_bytes_b, [&]() { return csprng_b(); });
 
   EXPECT_EQ(rand_bytes_a, rand_bytes_b);
@@ -33,13 +33,13 @@ TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Diff_Seed_Produces_Ne_Output)
   std::vector<uint8_t> rand_bytes_a(GENERATED_RANDOM_BYTE_LEN, 0x00);
   std::vector<uint8_t> rand_bytes_b(GENERATED_RANDOM_BYTE_LEN, 0x00);
 
-  randomshake::randomshake_t<> csprng_a(seed);
+  randomshake::randomshake_t csprng_a(seed);
   std::ranges::generate(rand_bytes_a, [&]() { return csprng_a(); });
 
   seed.fill(0xde);
   randomshake_test_utils::do_bitflip(seed[0], 3);
 
-  randomshake::randomshake_t<> csprng_b(seed);
+  randomshake::randomshake_t csprng_b(seed);
   std::ranges::generate(rand_bytes_b, [&]() { return csprng_b(); });
 
   EXPECT_NE(rand_bytes_a, rand_bytes_b);
@@ -59,7 +59,7 @@ TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_XOF_Kind_Produc
   std::array<uint8_t, randomshake::randomshake_t<uint8_t, randomshake::xof_kind_t::TURBOSHAKE256>::seed_byte_len> seed_b{};
   seed_b.fill(0xde);
 
-  randomshake::randomshake_t<> csprng_b(seed_b);
+  randomshake::randomshake_t<uint8_t, randomshake::xof_kind_t::TURBOSHAKE256> csprng_b(seed_b);
   std::ranges::generate(rand_bytes_b, [&]() { return csprng_b(); });
 
   EXPECT_NE(rand_bytes_a, rand_bytes_b);
@@ -105,8 +105,8 @@ TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Public_API)
   std::array<uint8_t, randomshake::randomshake_t<>::seed_byte_len> seed{};
   seed.fill(0xde);
 
-  randomshake::randomshake_t<> csprng_u8{ seed };
-  randomshake::randomshake_t<> csprng_bytes{ seed };
+  randomshake::randomshake_t csprng_u8{ seed };
+  randomshake::randomshake_t csprng_bytes{ seed };
 
   std::vector<uint8_t> generated_rand_u8(GENERATED_RANDOM_BYTE_LEN, 0x00);
   std::vector<uint8_t> generated_byte_seq(GENERATED_RANDOM_BYTE_LEN, 0xff);
@@ -122,8 +122,8 @@ TEST(RandomSHAKE, Deterministic_CSPRNG_Oneshot_vs_Multishot_Squeezing)
   std::array<uint8_t, randomshake::randomshake_t<>::seed_byte_len> seed{};
   seed.fill(0xde);
 
-  randomshake::randomshake_t<> csprng_oneshot{ seed };
-  randomshake::randomshake_t<> csprng_multishot{ seed };
+  randomshake::randomshake_t csprng_oneshot{ seed };
+  randomshake::randomshake_t csprng_multishot{ seed };
 
   std::vector<uint8_t> generated_bytes_oneshot(GENERATED_RANDOM_BYTE_LEN, 0x00);
   std::vector<uint8_t> generated_bytes_multishot(GENERATED_RANDOM_BYTE_LEN, 0xff);

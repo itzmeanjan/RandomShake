@@ -12,7 +12,7 @@ main()
   seed.fill(0xfe);
 
   // Deterministic CSPRNG : Seed -based initialization of CSPRNG
-  randomshake::randomshake_t<> csprng(seed);
+  randomshake::randomshake_t csprng(seed);
   std::uniform_int_distribution<uint8_t> dist{ 97, 102 };
 
   for (auto _ : std::ranges::iota_view{ 1, 10 }) {
