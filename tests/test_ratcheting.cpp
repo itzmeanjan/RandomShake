@@ -94,12 +94,12 @@ test_ratchet_getting_activated_post_ratchet_period_bytes_output()
   EXPECT_FALSE(std::ranges::equal(last_of_original, last_of_dummy));
 }
 
-TEST(RandomShake, Deterministic_CSPRNG_Detect_Ratchet_Working_For_SHAKE256_XOF)
+TEST(RandomSHAKE, Deterministic_CSPRNG_Detect_Ratchet_Working_For_SHAKE256_XOF)
 {
   test_ratchet_getting_activated_post_ratchet_period_bytes_output<randomshake::xof_kind_t::SHAKE256>();
 }
 
-TEST(RandomShake, Deterministic_CSPRNG_Detect_Ratchet_Working_For_TurboSHAKE256_XOF)
+TEST(RandomSHAKE, Deterministic_CSPRNG_Detect_Ratchet_Working_For_TurboSHAKE256_XOF)
 {
   test_ratchet_getting_activated_post_ratchet_period_bytes_output<randomshake::xof_kind_t::TURBOSHAKE256>();
 }

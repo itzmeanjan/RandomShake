@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_Produces_Eq_Output)
+TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Same_Seed_Produces_Eq_Output)
 {
   std::array<uint8_t, randomshake::randomshake_t<>::seed_byte_len> seed{};
   seed.fill(0xde);
@@ -25,7 +25,7 @@ TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_Produces_Eq_Output)
   EXPECT_EQ(rand_bytes_a, rand_bytes_b);
 }
 
-TEST(RandomShake, Deterministic_CSPRNG_Using_Diff_Seed_Produces_Ne_Output)
+TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Diff_Seed_Produces_Ne_Output)
 {
   std::array<uint8_t, randomshake::randomshake_t<>::seed_byte_len> seed{};
   seed.fill(0xde);
@@ -45,7 +45,7 @@ TEST(RandomShake, Deterministic_CSPRNG_Using_Diff_Seed_Produces_Ne_Output)
   EXPECT_NE(rand_bytes_a, rand_bytes_b);
 }
 
-TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_XOF_Kind_Produces_Ne_Output)
+TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_XOF_Kind_Produces_Ne_Output)
 {
   std::array<uint8_t, randomshake::randomshake_t<uint8_t, randomshake::xof_kind_t::SHAKE256>::seed_byte_len> seed_a{};
   seed_a.fill(0xde);
@@ -65,7 +65,7 @@ TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_XOF_Kind_Produc
   EXPECT_NE(rand_bytes_a, rand_bytes_b);
 }
 
-TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Result_Type_Produces_Eq_Output)
+TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Result_Type_Produces_Eq_Output)
 {
   std::array<uint8_t, randomshake::randomshake_t<>::seed_byte_len> seed{};
   seed.fill(0xde);
@@ -100,7 +100,7 @@ TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Result_Type_Pro
   EXPECT_TRUE(std::ranges::equal(generated_rand_u32_span, generated_rand_u64_span));
 }
 
-TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Public_API)
+TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Public_API)
 {
   std::array<uint8_t, randomshake::randomshake_t<>::seed_byte_len> seed{};
   seed.fill(0xde);
@@ -117,7 +117,7 @@ TEST(RandomShake, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Public_API)
   EXPECT_EQ(generated_rand_u8, generated_byte_seq);
 }
 
-TEST(RandomShake, Deterministic_CSPRNG_Oneshot_vs_Multishot_Squeezing)
+TEST(RandomSHAKE, Deterministic_CSPRNG_Oneshot_vs_Multishot_Squeezing)
 {
   std::array<uint8_t, randomshake::randomshake_t<>::seed_byte_len> seed{};
   seed.fill(0xde);

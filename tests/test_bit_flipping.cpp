@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include <limits>
 
-TEST(RandomShakeTestUtility, Bit_Flipping_Must_Work_Correctly)
+TEST(RandomSHAKETestUtility, Bit_Flipping_Must_Work_Correctly)
 {
   auto input_word = std::numeric_limits<uint8_t>::min();
   constexpr auto T_bw = std::numeric_limits<decltype(input_word)>::digits;
