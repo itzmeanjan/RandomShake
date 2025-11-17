@@ -108,6 +108,19 @@ For running all functional correctness tests, just issue
 make test -j
 ```
 
+```bash
+PASSED TESTS (9/9):
+       1 ms: build/test/test.out RandomSHAKETestUtility.Bit_Flipping_Must_Work_Correctly
+       4 ms: build/test/test.out RandomSHAKE.Deterministic_CSPRNG_Oneshot_vs_Multishot_Squeezing
+      11 ms: build/test/test.out RandomSHAKE.Deterministic_CSPRNG_Using_Same_Seed_With_Diff_XOF_Kind_Produces_Ne_Output
+      11 ms: build/test/test.out RandomSHAKE.Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Public_API
+      11 ms: build/test/test.out RandomSHAKE.Deterministic_CSPRNG_Detect_Ratchet_Working_For_TurboSHAKE256_XOF
+      16 ms: build/test/test.out RandomSHAKE.Deterministic_CSPRNG_Using_Diff_Seed_Produces_Ne_Output
+      17 ms: build/test/test.out RandomSHAKE.Deterministic_CSPRNG_Using_Same_Seed_Produces_Eq_Output
+      18 ms: build/test/test.out RandomSHAKE.Deterministic_CSPRNG_Detect_Ratchet_Working_For_SHAKE256_XOF
+      20 ms: build/test/test.out RandomSHAKE.Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Result_Type_Produces_Eq_Output
+```
+
 > [!NOTE]
 > There is a help menu, which introduces you to all available commands; just run `make` from the root directory of this project.
 
