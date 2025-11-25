@@ -64,7 +64,7 @@ csprng.generate(rand_values);
 
 ### "RandomSHAKE" CSPRNG Performance Overview
 
-CSPRNG Operation | Time taken on AWS EC2 Instance `c8i.large` | Time taken on AWS EC2 Instance `c8g.large`
+CSPRNG Operation | Time taken/ Throughput achieved on AWS EC2 Instance `c8i.large` | Time taken/ Throughput achieved on AWS EC2 Instance `c8g.large`
 --- | --- | ---
 Deterministic seeding of instance | 1.3 us | 1.8 us
 Non-Deterministic seeding of instance | 38.5 us | 11.5 us
