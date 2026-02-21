@@ -190,7 +190,7 @@ include(FetchContent)
 FetchContent_Declare(
   randomshake
   GIT_REPOSITORY https://github.com/itzmeanjan/RandomShake.git
-  GIT_TAG master
+  GIT_TAG main
   GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(randomshake)
