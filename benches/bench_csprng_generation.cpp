@@ -5,8 +5,10 @@
 #include <cstdint>
 #include <vector>
 
+namespace {
+
 template<typename result_type>
-static void
+void
 bench_csprng_output_generation(benchmark::State& state)
 {
   std::array<uint8_t, randomshake::randomshake_t<>::seed_byte_len> seed{};
@@ -15,7 +17,7 @@ bench_csprng_output_generation(benchmark::State& state)
   randomshake::randomshake_t<result_type> csprng(seed);
   result_type result{};
 
-  for (auto _ : state) {
+  for (auto _itr : state) {
     benchmark::DoNotOptimize(&csprng);
     benchmark::DoNotOptimize(result);
 
@@ -26,11 +28,11 @@ bench_csprng_output_generation(benchmark::State& state)
     benchmark::ClobberMemory();
   }
 
-  state.SetBytesProcessed(state.iterations() * sizeof(result_type));
+  state.SetBytesProcessed(state.iterations() * static_cast<int64_t>(sizeof(result_type)));
 }
 
 template<randomshake::xof_kind_t xof_kind>
-static void
+void
 bench_csprng_byte_sequence_squeezing(benchmark::State& state)
 {
   std::array<uint8_t, randomshake::randomshake_t<uint8_t, xof_kind>::seed_byte_len> seed{};
@@ -38,10 +40,10 @@ bench_csprng_byte_sequence_squeezing(benchmark::State& state)
 
   randomshake::randomshake_t<uint8_t, xof_kind> csprng(seed);
 
-  constexpr size_t RANDOM_OUTPUT_BYTE_LEN = 1'024 * 1'024; // 1 MB
+  constexpr size_t RANDOM_OUTPUT_BYTE_LEN = 1'024UL * 1'024UL; // 1 MB
   std::vector<uint8_t> rand_byte_seq(RANDOM_OUTPUT_BYTE_LEN, 0);
 
-  for (auto _ : state) {
+  for (auto _itr : state) {
     benchmark::DoNotOptimize(&csprng);
     benchmark::DoNotOptimize(rand_byte_seq);
 
@@ -52,7 +54,9 @@ bench_csprng_byte_sequence_squeezing(benchmark::State& state)
     benchmark::ClobberMemory();
   }
 
-  state.SetBytesProcessed(state.iterations() * rand_byte_seq.size());
+  state.SetBytesProcessed(state.iterations() * static_cast<int64_t>(rand_byte_seq.size()));
+}
+
 }
 
 BENCHMARK(bench_csprng_output_generation<uint8_t>)->Name("csprng/generate_u8")->ComputeStatistics("min", compute_min)->ComputeStatistics("max", compute_max);

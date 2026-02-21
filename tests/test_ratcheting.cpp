@@ -14,7 +14,7 @@ private:
   randomshake::xof_selector_t<xof_kind>::type state;
 
 public:
-  dummy_noratchet_csprng(std::span<const uint8_t, randomshake::xof_selector_t<xof_kind>::seed_byte_len> seed)
+  explicit dummy_noratchet_csprng(std::span<const uint8_t, randomshake::xof_selector_t<xof_kind>::seed_byte_len> seed)
   {
     state.reset();
     state.absorb(seed);
@@ -24,17 +24,17 @@ public:
   uint8_t operator()()
   {
     uint8_t result = 0;
-
-    auto res_ptr = reinterpret_cast<uint8_t*>(&result);
-    auto res_span = std::span<uint8_t>(res_ptr, sizeof(result));
+    auto res_span = std::span<uint8_t>(&result, 1);
 
     state.squeeze(res_span);
     return result;
   }
 };
 
+namespace {
+
 template<randomshake::xof_kind_t xof_kind>
-static void
+void
 test_ratchet_getting_activated_post_ratchet_period_bytes_output()
 {
   // --- Paint output buffers. ---
@@ -92,6 +92,8 @@ test_ratchet_getting_activated_post_ratchet_period_bytes_output()
 
   EXPECT_TRUE(std::ranges::equal(first_of_original, first_of_dummy));
   EXPECT_FALSE(std::ranges::equal(last_of_original, last_of_dummy));
+}
+
 }
 
 TEST(RandomSHAKE, Deterministic_CSPRNG_Detect_Ratchet_Working_For_SHAKE256_XOF)

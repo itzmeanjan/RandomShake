@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <random>
-#include <ranges>
 
 int
 main()
@@ -15,7 +14,7 @@ main()
   randomshake::randomshake_t csprng(seed);
   std::uniform_int_distribution<uint8_t> dist{ 97, 102 };
 
-  for (auto _ : std::ranges::iota_view{ 1, 10 }) {
+  for (int idx = 1; idx < 10; ++idx) {
     std::cout << "[UNIFORM iNT dISTRIBUTION] Random integer sampled in [97, 102]: " << dist(csprng) << '\n';
   }
 

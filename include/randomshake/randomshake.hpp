@@ -28,7 +28,7 @@ template<typename Tp>
 forceinline void
 DoNotOptimize(Tp& value)
 {
-  asm volatile("" : "+r,m"(value) : :);
+  asm volatile("" : "+r,m"(value) : :); // NOLINT(hicpp-no-assembler)
 }
 
 // Enum listing supported eXtendable Output Functions (XOFs), which can be used for producing pseudo-random byte stream.
@@ -108,7 +108,7 @@ struct randomshake_t
 private:
   xof_selector_t<xof_kind>::type state{};
   std::array<uint8_t, xof_selector_t<xof_kind>::ratchet_period_byte_len> buffer{};
-  size_t buffer_offset = 0u;
+  size_t buffer_offset = 0U;
 
 public:
   using result_type = UIntType;
@@ -126,8 +126,8 @@ public:
     std::array<uint8_t, seed_byte_len> seed{};
     auto seed_span = std::span(seed);
 
-    std::random_device rd{};
-    const auto entropy = rd.entropy();
+    std::random_device rdev{};
+    const auto entropy = rdev.entropy();
     if (entropy == 0.) {
       std::cout << "[RANDOMSHAKE WARNING] Non-deterministic seed generator has zero entropy ! "
                    "Read https://en.cppreference.com/w/cpp/numeric/random/random_device/entropy for more insight.\n";
@@ -136,10 +136,10 @@ public:
     constexpr size_t step_by = sizeof(std::random_device::result_type);
     size_t seed_offset = 0;
     while (seed_offset < seed_span.size()) {
-      const auto v = rd();
+      const auto val = rdev();
 
       static_assert(seed_byte_len % step_by == 0, "Seed byte length must be a multiple of `step_by`, for following memcpy to work correctly !");
-      std::memcpy(seed_span.subspan(seed_offset, step_by).data(), reinterpret_cast<const uint8_t*>(&v), step_by);
+      std::memcpy(seed_span.subspan(seed_offset, step_by).data(), &val, step_by);
 
       seed_offset += step_by;
     }
@@ -197,11 +197,7 @@ public:
     }
 
     result_type result{};
-
-    auto src_ptr = reinterpret_cast<const uint8_t*>(buffer.data()) + buffer_offset;
-    auto dst_ptr = reinterpret_cast<uint8_t*>(&result);
-
-    std::memcpy(dst_ptr, src_ptr, required_num_bytes);
+    std::memcpy(&result, &buffer[buffer_offset], required_num_bytes);
     buffer_offset += required_num_bytes;
 
     return result;
@@ -217,10 +213,7 @@ public:
       const size_t required_num_bytes = output.size() - out_offset;
       const size_t copyable_num_bytes = std::min(readable_num_bytes, required_num_bytes);
 
-      auto src_ptr = reinterpret_cast<const uint8_t*>(buffer.data()) + buffer_offset;
-      auto dst_ptr = reinterpret_cast<uint8_t*>(output.data()) + out_offset;
-
-      std::memcpy(dst_ptr, src_ptr, copyable_num_bytes);
+      std::memcpy(&output[out_offset], &buffer[buffer_offset], copyable_num_bytes);
 
       buffer_offset += copyable_num_bytes;
       out_offset += copyable_num_bytes;

@@ -6,12 +6,14 @@
 #include <random>
 #include <span>
 
+namespace {
+
 float
 compute_mean(std::span<float> vals)
 {
-  float res = 0.f;
-  for (auto v : vals) {
-    res += v;
+  float res = 0.F;
+  for (auto val : vals) {
+    res += val;
   }
 
   return res / static_cast<float>(vals.size());
@@ -22,9 +24,9 @@ compute_standard_deviation(std::span<float> vals)
 {
   const auto mean = compute_mean(vals);
 
-  float squared_diff = 0.f;
-  for (auto v : vals) {
-    squared_diff += std::pow(v - mean, 2.f);
+  float squared_diff = 0.F;
+  for (auto val : vals) {
+    squared_diff += std::pow(val - mean, 2.F);
   }
 
   const auto squared_diff_mean = squared_diff / static_cast<float>(vals.size());
@@ -36,14 +38,16 @@ compute_standard_deviation(std::span<float> vals)
 float
 expected_standard_deviation_for_continuous_uniform_distributed_real_numbers(const float start_interval, const float end_interval)
 {
-  return (end_interval - start_interval) / std::sqrt(12.f);
+  return (end_interval - start_interval) / std::sqrt(12.F);
+}
+
 }
 
 int
 main()
 {
-  const float start_interval = 0.f;
-  const float end_interval = 1.f;
+  const float start_interval = 0.F;
+  const float end_interval = 1.F;
 
   assert(start_interval < end_interval);
 
@@ -51,7 +55,7 @@ main()
   std::uniform_real_distribution<float> dist{ start_interval, end_interval };
 
   constexpr size_t NUMBER_OF_RANDOM_FLOATS = 1'000'000;
-  std::vector<float> rand_floats(NUMBER_OF_RANDOM_FLOATS, 0.f);
+  std::vector<float> rand_floats(NUMBER_OF_RANDOM_FLOATS, 0.F);
   std::ranges::generate(rand_floats, [&]() { return dist(csprng); });
 
   const auto computed_sd = compute_standard_deviation(rand_floats);
