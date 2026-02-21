@@ -90,14 +90,9 @@ TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Result_Type_Pro
   std::ranges::generate(generated_rand_u32, [&]() { return csprng_u32(); });
   std::ranges::generate(generated_rand_u64, [&]() { return csprng_u64(); });
 
-  std::span<const uint8_t> generated_rand_u8_span(generated_rand_u8);
-  std::span<const uint8_t> generated_rand_u16_span(reinterpret_cast<uint8_t*>(generated_rand_u16.data()), GENERATED_RANDOM_BYTE_LEN);
-  std::span<const uint8_t> generated_rand_u32_span(reinterpret_cast<uint8_t*>(generated_rand_u32.data()), GENERATED_RANDOM_BYTE_LEN);
-  std::span<const uint8_t> generated_rand_u64_span(reinterpret_cast<uint8_t*>(generated_rand_u64.data()), GENERATED_RANDOM_BYTE_LEN);
-
-  EXPECT_TRUE(std::ranges::equal(generated_rand_u8_span, generated_rand_u16_span));
-  EXPECT_TRUE(std::ranges::equal(generated_rand_u16_span, generated_rand_u32_span));
-  EXPECT_TRUE(std::ranges::equal(generated_rand_u32_span, generated_rand_u64_span));
+  EXPECT_EQ(0, std::memcmp(generated_rand_u8.data(), generated_rand_u16.data(), GENERATED_RANDOM_BYTE_LEN));
+  EXPECT_EQ(0, std::memcmp(generated_rand_u16.data(), generated_rand_u32.data(), GENERATED_RANDOM_BYTE_LEN));
+  EXPECT_EQ(0, std::memcmp(generated_rand_u32.data(), generated_rand_u64.data(), GENERATED_RANDOM_BYTE_LEN));
 }
 
 TEST(RandomSHAKE, Deterministic_CSPRNG_Using_Same_Seed_With_Diff_Public_API)

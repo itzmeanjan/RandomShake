@@ -3,7 +3,6 @@
 #include <iomanip>
 #include <map>
 #include <random>
-#include <ranges>
 
 // This example collects inspiration from https://en.cppreference.com/w/cpp/numeric/random/bernoulli_distribution.
 // See the example section.
@@ -14,7 +13,7 @@ main()
   std::bernoulli_distribution dist{ .25 };
 
   std::map<bool, size_t> hist;
-  for (auto _ : std::ranges::iota_view{ 0, 10'000 }) {
+  for (int idx = 0; idx < 10'000; ++idx) {
     ++hist[dist(csprng)];
   }
 

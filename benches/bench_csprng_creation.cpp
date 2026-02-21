@@ -3,13 +3,15 @@
 #include <array>
 #include <benchmark/benchmark.h>
 
-static void
+namespace {
+
+void
 bench_deterministic_csprng_creation(benchmark::State& state)
 {
   std::array<uint8_t, randomshake::randomshake_t<>::seed_byte_len> seed{};
   seed.fill(0xde);
 
-  for (auto _ : state) {
+  for (auto _itr : state) {
     benchmark::DoNotOptimize(seed);
     randomshake::randomshake_t csprng(seed);
 
@@ -18,15 +20,17 @@ bench_deterministic_csprng_creation(benchmark::State& state)
   }
 }
 
-static void
+void
 bench_nondeterministic_csprng_creation(benchmark::State& state)
 {
-  for (auto _ : state) {
+  for (auto _itr : state) {
     randomshake::randomshake_t csprng;
 
     benchmark::DoNotOptimize(&csprng);
     benchmark::ClobberMemory();
   }
+}
+
 }
 
 BENCHMARK(bench_deterministic_csprng_creation)

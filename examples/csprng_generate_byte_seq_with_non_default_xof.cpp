@@ -12,7 +12,7 @@ main()
    */
   randomshake::randomshake_t<uint8_t, randomshake::xof_kind_t::SHAKE256> csprng;
 
-  constexpr size_t RANDOM_OUTPUT_BYTE_LEN = 1'024 * 1'024;
+  constexpr size_t RANDOM_OUTPUT_BYTE_LEN = 1'024UL * 1'024UL;
   std::vector<uint8_t> rand_byte_seq(RANDOM_OUTPUT_BYTE_LEN, 0);
 
   csprng.generate(rand_byte_seq);
