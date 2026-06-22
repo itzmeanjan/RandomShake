@@ -12,7 +12,7 @@ jobs:
     env:
       LLVM_VERSION: 20
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install LLVM ${{ env.LLVM_VERSION }}
         run: |
@@ -54,7 +54,7 @@ jobs:
             build_type: Debug
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Configure
         run: >
